@@ -1,0 +1,21 @@
+{
+  "name": "AgriTour App",
+  "short_name": "AgriTour",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "description": "Smart Learning support app for Agriculture Department",
+  "icons": [
+    {
+      "src": "icons/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

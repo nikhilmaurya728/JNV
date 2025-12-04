@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriTour-Paper</title>
+
+  <link rel="stylesheet" href="penStyle.css">
+  <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+  <header>
+    <div>
+
+
+      <button class="toggle-btn" id="fullscreenBtn" title="Toggle Fullscreen">⛶</button>
+
+      <span class="brand-title" onclick="window.location.href='index.html'" style="cursor: pointer;">AgriTour</span>
+    </div>
+
+    <div class="header-right">
+      <span class="timer" id="timer">⏳ 10:00</span>
+      <button class="headerBTN" id="timerBtn">Start</button>
+    </div>
+  </header>
+
+  <div class="quizPage" id="quizPage">
+
+
+    <div id="question-box" class="question-box">
+      <h2 id="questionText">Loading...</h2>
+      <div class="options" id="optionsBox"></div>
+      <div id="explanation" class="explanation"></div>
+    </div>
+
+    <div class="result-card" id="resultCard"></div>
+
+    <div id="onQueCard" class="onQueCard">
+      <button id="prevBtn" onclick="prevQuestion()">Previous</button>
+      <button id="submitBtn" onclick="submitQuiz()">Submit</button>
+      <button id="goResult" onclick="goResult()">Result</button>
+
+      <button id="seeAnswerBtn" onclick="toggleExplanation()" style="display:none;">Show</button>
+      <button id="nextBtn" onclick="nextQuestion()">Next</button>
+    </div>
+    <div id="onResultCard" class="onResultCard">
+      <button id="goOnQuiz" onclick="goOnQuiz()">Go On Quiz</button>
+    </div>
+
+  </div>
+
+
+  <div class="adPage" id="adPage"
+    style=" max-width: 700px; width: 100%; margin: 150px auto; padding: 0 15px; position: relative; box-sizing: border-box; ">
+    <!-- Cross Button --> <button onclick="document.getElementById('adPage').style.display='none'"
+      style=" position: absolute; top: 10px; right: 20px; background: #ff5e5e; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 16px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); ">✖</button>
+    <!-- Advertisement Box -->
+    <div
+      style=" background-color: #e1f8dc; border: 2px solid #009218; border-radius: 10px; padding: 15px; font-family: sans-serif; ">
+      <h2 style="color: #00660d; margin-top: 0;">📢 AgriTour YouTube Channel</h2>
+      <p style="font-size: 16px; color: #333;"> अब सभी <strong>Agri related exams</strong> की तैयारी करो हमारे YouTube
+        चैनल <strong style="color: #009218;">AgriTour</strong> के साथ! 🌾<br><br> 👉 हम देते हैं <strong>quiz और
+          practice papers</strong> <em>बिलकुल उसी format</em> में जैसे असली exams में पूछे जाते हैं!<br><br> 🎯
+        Agriculture Supervisor, ICAR, AFO, RSMSSB, Bihar Krishi Bharti, और भी बहुत कुछ! </p> <a
+        href="https://www.youtube.com/@AgriTour-xp" target="_blank"
+        style=" display: inline-block; background-color: #009218; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; ">
+        🔔 Visit & Subscribe Now </a>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <!--Start Pen Canvas -->
+  <canvas id="overlayCanvas"></canvas>
+  <!-- Floating Button Menu -->
+  <div class="floating-menu">
+
+    <button id="actCan" class="tool-btn" onclick="activateCanvas()">🖋️</button>
+    <button style="background: #00e6cf;" id="deActCan" class="tool-btn" onclick="deactivateCanvas()">🖋️</button>
+    <button class="tool-btn" onclick="clearCanvas()">❌</button>
+    <button class="tool-btn tool-btn-changeColor" onclick="toggleEraser()">🧹</button>
+
+    <button style="color: #00f000;" class="tool-btn tool-btn-changeColor" onclick="changeColor('#00f000')">✎</button>
+
+    <button style="color: blue;" class="tool-btn tool-btn-changeColor" onclick="changeColor('#0000ff')">✎</button>
+
+    <button style="color: red;" class="tool-btn tool-btn-changeColor" onclick="changeColor('#ff0000')">✎</button>
+
+    <button class="tool-btn tool-btn-changeColor" onclick="openColorPicker()">
+      <input type="color" id="colorPicker" onclick="changeColor(this.value)" onchange="changeColor(this.value)">
+    </button>
+
+    <button class="tool-btn" style="font-size:medium;">
+      <input id="penSizeSlider" type="range" min="1" max="20" value="8" onchange="changePenSize(this.value)" />
+      <span id="penSizeValue">5</span>
+    </button>
+
+    <button id="mainToggleBtn" class="tool-btn show" onclick="toggleToolMenu()">➕ Tools</button>
+
+  </div>
+  <!--End Pen Canvas -->
+
+
+
+
+  <script src="penScript.js"></script>
+  <script src="data.js"></script>
+
+
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const examName = params.get('exam') || 'GK';     // Default: GK
+    const paperNumber = params.get('paper') || '1';  // Default: 1
+
+    let currentSet = window[`${examName}${paperNumber}`]; // e.g., GK2
+
+    if (!currentSet || !Array.isArray(currentSet)) {
+      alert(`❌❌ ${examName} का quiz-${paperNumber} केवल Paid User के लिए है !`);
+      throw new Error("Quiz data missing!");
+    }
+
+    const GK = currentSet;
+    let currentQuestion = 0;
+    let selectedAnswers = {};
+    let quizSubmitted = false;
+    let timer; // For interval
+    //////////////////////
+    let timerInterval;
+    let totalSeconds = 10 * 60; // 10 minutes = 600 seconds
+    let isRunning = false;
+    let isStarted = false;
+
+    const timerDisplay = document.getElementById("timer");
+    const timerBtn = document.getElementById("timerBtn");
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      timerDisplay.textContent = `⏳ ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          updateTimerDisplay();
+        } else {
+
+          submitQuiz();
+          alert("⏰ Time's up!");
+        }
+      }, 1000);
+    }
+
+    timerBtn.addEventListener("click", () => {
+      if (!isStarted) {
+        // First time start
+        startTimer();
+        isStarted = true;
+        isRunning = true;
+        timerBtn.textContent = "❚❚";
+
+        document.getElementById('adPage').style.display = "none";
+        document.getElementById('quizPage').style.display = "flex";
+
+      } else if (isRunning) {
+        // Pause
+        clearInterval(timerInterval);
+        isRunning = false;
+        timerBtn.textContent = "▶";
+
+        document.getElementById('adPage').style.display = "flex";
+        document.getElementById('quizPage').style.display = "none";
+      } else {
+        // Resume
+        startTimer();
+        isRunning = true;
+        timerBtn.textContent = "❚❚";
+
+        document.getElementById('adPage').style.display = "none";
+        document.getElementById('quizPage').style.display = "flex";
+      }
+    });
+
+    // Initialize display
+    updateTimerDisplay();
+
+
+    //////////////////////////
+
+
+
+
+
+    if (quizSubmitted) {
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('goResult').style.display = 'block';
+    } else {
+      document.getElementById('submitBtn').style.display = 'block';
+      document.getElementById('goResult').style.display = 'none';
+    }
+
+    function goResult() {
+      document.getElementById('onResultCard').style.display = 'flex';
+      document.getElementById('onQueCard').style.display = 'none';
+
+
+      document.getElementById('question-box').style.display = 'none';
+      document.getElementById('onResultCard').style.display = 'flex';
+      document.getElementById('onQueCard').style.display = 'none';
+
+      showResultCard();
+    }
+
+    function goOnQuiz() {
+      document.getElementById('resultCard').style.display = 'none';
+      document.getElementById('question-box').style.display = 'block';
+
+      document.getElementById('onResultCard').style.display = 'none';
+      document.getElementById('onQueCard').style.display = 'flex';
+
+      if (quizSubmitted) {
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('goResult').style.display = 'block';
+      } else {
+        document.getElementById('submitBtn').style.display = 'block';
+        document.getElementById('goResult').style.display = 'none';
+      }
+    }
+
+
+    document.getElementById('onResultCard').style.display = 'none';
+    document.getElementById('onQueCard').style.display = 'flex';
+
+    /*
+    let timeLeft = 600; // 10 minutes in seconds
+        function startTimer() {
+          timer = setInterval(() => {
+            const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+            const seconds = String(timeLeft % 60).padStart(2, '0');
+            document.getElementById('timer').innerText = `⏳ ${minutes}:${seconds}`;
+            timeLeft--;
+    
+            if (timeLeft < 0) {
+              clearInterval(timer);
+              alert("⏰ Time's up! Quiz auto-submitted.");
+              submitQuiz();
+            }
+          }, 1000);
+        }
+    */
+    document.getElementById('submitBtn').disabled = true;
+
+
+
+    function loadQuestion() {
+      const q = GK[currentQuestion];
+      document.getElementById('questionText').innerText = `${q.id}: ${q.question}`;
+      const optionsBox = document.getElementById('optionsBox');
+      optionsBox.innerHTML = '';
+
+      q.options.forEach((opt, i) => {
+        const optionLetter = String.fromCharCode(65 + i);
+        const div = document.createElement('div');
+        div.classList.add('option');
+        div.innerText = `${optionLetter}. ${opt}`;
+        div.dataset.letter = optionLetter;
+
+        if (quizSubmitted) {
+          if (selectedAnswers[currentQuestion] === optionLetter) {
+            if (optionLetter === q.rightAnswer) {
+              div.classList.add('correct');
+              div.innerHTML += '<span class="symbol">✔</span>';
+            } else {
+              div.classList.add('wrong');
+              div.innerHTML += '<span class="symbol">✘</span>';
+            }
+          } else if (optionLetter === q.rightAnswer) {
+            div.classList.add('correct');
+          }
+        } else {
+          if (selectedAnswers[currentQuestion] === optionLetter) {
+            div.classList.add('selected');
+          }
+
+
+
+
+          let pressTimer;
+
+          div.addEventListener('mousedown', () => {
+            pressTimer = setTimeout(() => {
+              // Long press: deselect the option if it's already selected
+              if (selectedAnswers[currentQuestion] === optionLetter) {
+                delete selectedAnswers[currentQuestion];
+                loadQuestion();
+              }
+            }, 700); // 700ms for long press
+          });
+
+          div.addEventListener('mouseup', () => {
+            clearTimeout(pressTimer);
+          });
+
+          div.addEventListener('mouseleave', () => {
+            clearTimeout(pressTimer);
+          });
+
+          div.addEventListener('click', () => {
+            if (selectedAnswers[currentQuestion] !== optionLetter) {
+              selectedAnswers[currentQuestion] = optionLetter;
+              loadQuestion();
+            }
+          });
+
+
+
+        }
+
+        optionsBox.appendChild(div);
+      });
+
+      document.getElementById('prevBtn').disabled = currentQuestion === 0;
+      if (currentQuestion === GK.length - 1) {
+        document.getElementById('nextBtn').disabled = true;
+        document.getElementById('submitBtn').disabled = false;
+      } else {
+        document.getElementById('nextBtn').disabled = false;
+        document.getElementById('submitBtn').disabled = true;
+      }
+
+      document.getElementById('seeAnswerBtn').style.display = quizSubmitted ? 'inline-block' : 'none';
+      document.getElementById('explanation').style.display = 'none';
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < GK.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      }
+    }
+
+    function submitQuiz() {
+
+      clearInterval(timerInterval);
+      timerBtn.textContent = "Start";
+      isRunning = false;
+      isStarted = false;
+      document.getElementById('timerBtn').style.display = "none";
+
+
+      if (quizSubmitted) return;
+
+      document.getElementById('question-box').style.display = 'none';
+      document.getElementById('onResultCard').style.display = 'flex';
+      document.getElementById('onQueCard').style.display = 'none';
+
+      quizSubmitted = true;
+      // clearInterval(timer);
+      loadQuestion();
+      showResultCard();
+    }
+
+    function toggleExplanation() {
+      const expl = GK[currentQuestion].explanation;
+      const explDiv = document.getElementById('explanation');
+      explDiv.innerText = expl;
+      explDiv.style.display = 'block';
+    }
+
+    function showResultCard() {
+      let total = GK.length;
+      let correct = 0;
+      let attempted = 0;
+
+      GK.forEach((q, i) => {
+        const selected = selectedAnswers[i];
+        if (selected) {
+          attempted++;
+          if (selected === q.rightAnswer) correct++;
+        }
+      });
+
+      const resultCard = document.getElementById('resultCard');
+      resultCard.innerHTML = `
+      <h3>🎉 Result Card</h3>
+      <p>✅ Attempted: ${attempted} / ${total}</p>
+      <p>✔ Correct: ${correct}</p>
+      <p>📊 Score: ${correct} / ${total}</p>
+      
+    `;
+      resultCard.style.display = 'block';
+    }
+
+
+
+
+    loadQuestion();
+    // startTimer();
+  </script>
+  <script>
+    const btn = document.getElementById('fullscreenBtn');
+
+    btn.addEventListener('click', async () => {
+      if (!document.fullscreenElement) {
+        await openFullscreen(document.documentElement);
+      } else {
+        await closeFullscreen();
+      }
+    });
+
+    async function openFullscreen(elem) {
+      try {
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+          await elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          await elem.msRequestFullscreen();
+        }
+      } catch (err) {
+        console.error("❌ Error entering fullscreen:", err);
+      }
+    }
+
+    async function closeFullscreen() {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        }
+      } catch (err) {
+        console.error("❌ Error exiting fullscreen:", err);
+      }
+    }
+
+    // 🔄 Listen to fullscreen change and update icon automatically
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        btn.textContent = '⛌ '; // fullscreen active
+      } else {
+        btn.textContent = '⛶'; // fullscreen off
+      }
+    });
+  </script>
+
+</body>
+
+</html>

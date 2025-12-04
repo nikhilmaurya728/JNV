@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>📍 My Real Location</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body style="font-family:sans-serif; padding:20px; text-align:center;">
+  <h2>📍 Your Real-Time Location (Auto Updates ⏱️ Every 20s)</h2>
+  <button onclick="getLocation()">🔍 Start Tracking</button>
+
+  <p id="latlon">Latitude & Longitude: ⏳</p>
+  <p id="address">Address: ⏳</p>
+  <div>
+    <p id="showStatus">📡 Waiting for update...</p>
+  </div>
+
+  <script>
+    const MIN_LAT = 25.915000;
+    const MAX_LAT = 25.916000;
+    const MIN_LONGI = 82.319000;
+    const MAX_LONGI = 82.320000;
+
+    let tracker = null;
+
+    function getLocation() {
+      if (!navigator.geolocation) {
+        document.getElementById("latlon").innerText = "Geolocation not supported!";
+        return;
+      }
+
+    
+      if (tracker) {
+        clearInterval(tracker); // In case button is clicked again
+      }
+
+      // 🚀 Run first time immediately
+      fetchLocation();
+
+      // 🔁 Then repeat every 20 seconds
+      tracker = setInterval(fetchLocation, 2000);
+    }
+
+    function fetchLocation() {
+      navigator.geolocation.getCurrentPosition(success, error);
+    }
+
+    const MID_LAT = (MIN_LAT + MAX_LAT) / 2;     // 25.9155
+    const MID_LONGI = (MIN_LONGI + MAX_LONGI) / 2; // 82.3195
+    function success(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      document.getElementById("latlon").innerText = `Latitude: ${lat}, Longitude: ${lon}`;
+
+      // ✅ Check latitude range
+      let latPos = "", lonPos = "";
+      const showDiv = document.getElementById("showStatus");
+
+      // Check latitude
+      if (lat < MIN_LAT) latPos = "too south";
+      else if (lat < MID_LAT) latPos = "south";
+      else if (lat <= MAX_LAT) latPos = "center-lat";
+      else latPos = "north";
+
+      // Check longitude
+      if (lon < MIN_LONGI) lonPos = "too west";
+      else if (lon < MID_LONGI) lonPos = "west";
+      else if (lon <= MAX_LONGI) lonPos = "center-long";
+      else lonPos = "east";
+
+      // Final status update
+      if (latPos === "center-lat" && lonPos === "center-long") {
+        showDiv.innerText = "✅ You are inside the main area.";
+      } else {
+        let direction = "";
+
+        if (latPos === "north") direction += "North ";
+        else if (latPos === "south") direction += "South ";
+
+        if (lonPos === "east") direction += "East";
+        else if (lonPos === "west") direction += "West";
+
+        showDiv.innerText = `📍 You are outside: ${direction.trim()}`;
+      }
+
+      // 🗺 Get address using OpenStreetMap
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+        .then(res => res.json())
+        .then(data => {
+          const address = data.display_name;
+          document.getElementById("address").innerText = `Address: ${address}`;
+        })
+        .catch(err => {
+          document.getElementById("address").innerText = "❌ Address not found.";
+        });
+    }
+
+    function error(err) {
+      document.getElementById("latlon").innerText = `❌ Error: ${err.message}`;
+      document.getElementById("showStatus").innerText = "📴 Failed to detect location.";
+      document.getElementById("showStatus").style.color = "gray";
+    }
+  </script>
+</body>
+
+</html>

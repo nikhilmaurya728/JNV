@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>📍 My Real Location</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body style="font-family:sans-serif; padding:20px; text-align:center;">
+  <h2>📍 Your Real-Time Location (Auto Updates ⏱️ Every 20s) <span id="times"></span></h2>
+  <button onclick="getLocation()">🔍 Start Tracking</button>
+
+  <p id="latlon">Latitude & Longitude: ⏳</p>
+  <p id="address">Address: ⏳</p>
+  <div>
+    <p id="showStatus">📡 Waiting for update...</p>
+  </div>
+
+  <script>
+    const MIN_LAT = 25.915000;
+    const MAX_LAT = 25.916000;
+    const MIN_LONGI = 82.319000;
+    const MAX_LONGI = 82.320000;
+
+    let tracker = null;
+
+    function getLocation() {
+      if (!navigator.geolocation) {
+        document.getElementById("latlon").innerText = "Geolocation not supported!";
+        return;
+      }
+
+
+      if (tracker) {
+        clearInterval(tracker); // In case button is clicked again
+      }
+
+      // 🚀 Run first time immediately
+      fetchLocation();
+
+      // 🔁 Then repeat every 20 seconds
+      tracker = setInterval(fetchLocation, 20000);
+    }
+    let a = 0;
+    function fetchLocation() {
+      navigator.geolocation.getCurrentPosition(success, error);
+      document.getElementById('times').innerText = a++;
+    }
+
+
+    function success(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+
+
+
+      document.getElementById("latlon").innerText = `Latitude: ${lat}, Longitude: ${lon}`;
+
+      document.getElementById("showStatus").textContent = 'hi';
+
+      // Check latitude
+      if (lat > MAX_LAT) {
+        if (lon < MIN_LONGI) {
+          document.getElementById("showStatus").textContent = '1';
+        } if (lon > MIN_LONGI && lon < MAX_LONGI) {
+          document.getElementById("showStatus").textContent = '2';
+        }
+        if (lon > MAX_LONGI) {
+          document.getElementById("showStatus").textContent = '3';
+        }
+      }
+      if (lat < MAX_LAT && lat > MIN_LAT) {
+        if (lon < MIN_LONGI) {
+          document.getElementById("showStatus").textContent = '4';
+        } if (lon > MIN_LONGI && lon < MAX_LONGI) {
+          document.getElementById("showStatus").textContent = '5';
+        }
+        if (lon > MAX_LONGI) {
+          document.getElementById("showStatus").textContent = '6';
+        }
+      }
+      if (lat < MIN_LAT) {
+        if (lon < MIN_LONGI) {
+          document.getElementById("showStatus").textContent = '7';
+        } if (lon > MIN_LONGI && lon < MAX_LONGI) {
+          document.getElementById("showStatus").textContent = '8';
+        }
+        if (lon > MAX_LONGI) {
+          document.getElementById("showStatus").textContent = '9';
+        }
+      }
+
+      // 🗺 Get address using OpenStreetMap
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+        .then(res => res.json())
+        .then(data => {
+          const address = data.display_name;
+          document.getElementById("address").innerText = `Address: ${address}`;
+        })
+        .catch(err => {
+          document.getElementById("address").innerText = "❌ Address not found.";
+        });
+    }
+
+    function error(err) {
+      document.getElementById("latlon").innerText = `❌ Error: ${err.message}`;
+      document.getElementById("showStatus").innerText = "📴 Failed to detect location.";
+      document.getElementById("showStatus").style.color = "gray";
+    }
+  </script>
+</body>
+
+</html>
