@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Face in Div</title>
+  <style>
+    body {
+      background: #f2f2f2;
+      font-family: Arial, sans-serif;
+    }
+
+    .face-box {
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 6px solid #4CAF50;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      display: none;
+      cursor: move;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Mirror effect */
+    }
+
+    .controls {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+      z-index: 1000;
+    }
+
+    .controls button,
+    .controls label {
+      margin-right: 10px;
+      margin-bottom: 10px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 👇 Controls -->
+  <div class="controls">
+    <button onclick="toggleVisibility()">👁 Show/Hide</button>
+    <label>📏 Resize Face Box</label>
+    <input type="range" min="100" max="400" value="250" onchange="resizeBox(this.value)">
+  </div>
+
+  <!-- 👇 Face Video Box -->
+  <div class="face-box" id="faceBox">
+    <video id="camera" autoplay playsinline muted></video>
+  </div>
+
+  <script>
+    let streamStarted = false;
+
+    function toggleVisibility() {
+      const box = document.getElementById("faceBox");
+      const video = document.getElementById("camera");
+
+      if (box.style.display === "none") {
+        box.style.display = "block";
+        
+        // Ask for permission only when first time showing
+        if (!streamStarted) {
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+              video.srcObject = stream;
+              streamStarted = true;
+            })
+            .catch(err => {
+              alert("Camera access denied ❌: " + err.message);
+            });
+        }
+
+      } else {
+        box.style.display = "none";
+      }
+    }
+
+    function resizeBox(size) {
+      const box = document.getElementById("faceBox");
+      box.style.width = `${size}px`;
+      box.style.height = `${size}px`;
+    }
+
+    // 👇 Make the box draggable
+    const faceBox = document.getElementById("faceBox");
+    let isDragging = false, offsetX = 0, offsetY = 0;
+
+    faceBox.addEventListener("mousedown", function (e) {
+      isDragging = true;
+      offsetX = e.clientX - faceBox.offsetLeft;
+      offsetY = e.clientY - faceBox.offsetTop;
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      if (isDragging) {
+        faceBox.style.left = (e.clientX - offsetX) + "px";
+        faceBox.style.top = (e.clientY - offsetY) + "px";
+      }
+    });
+
+    document.addEventListener("mouseup", function () {
+      isDragging = false;
+    });
+  </script>
+
+</body>
+</html>

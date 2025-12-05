@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgriTour-Paper</title>
+  <title>@JNVPathshala</title>
 
   <link rel="stylesheet" href="penStyle.css">
   <link rel="stylesheet" href="style.css">
@@ -18,7 +18,7 @@
 
       <button class="toggle-btn" id="fullscreenBtn" title="Toggle Fullscreen">⛶</button>
 
-      <span class="brand-title" onclick="window.location.href='index.html'" style="cursor: pointer;">AgriTour</span>
+      <span class="brand-title" onclick="window.location.href='index.html'" style="cursor: pointer;">JNV Pathshala</span>
     </div>
 
     <div class="header-right">
@@ -65,7 +65,7 @@
         चैनल <strong style="color: #009218;">AgriTour</strong> के साथ! 🌾<br><br> 👉 हम देते हैं <strong>quiz और
           practice papers</strong> <em>बिलकुल उसी format</em> में जैसे असली exams में पूछे जाते हैं!<br><br> 🎯
         Agriculture Supervisor, ICAR, AFO, RSMSSB, Bihar Krishi Bharti, और भी बहुत कुछ! </p> <a
-        href="https://www.youtube.com/@AgriTour-xp" target="_blank"
+        href="https://www.youtube.com/@Bright_agro_classes" target="_blank"
         style=" display: inline-block; background-color: #009218; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; ">
         🔔 Visit & Subscribe Now </a>
     </div>
@@ -81,7 +81,7 @@
   <!--Start Pen Canvas -->
   <canvas id="overlayCanvas"></canvas>
   <!-- Floating Button Menu -->
-  <div class="floating-menu">
+  <div class="floating-menu" id="floatingMenu">
 
     <button id="actCan" class="tool-btn" onclick="activateCanvas()">🖋️</button>
     <button style="background: #00e6cf;" id="deActCan" class="tool-btn" onclick="deactivateCanvas()">🖋️</button>
@@ -106,7 +106,7 @@
     <button id="mainToggleBtn" class="tool-btn show" onclick="toggleToolMenu()">➕ Tools</button>
 
   </div>
-  <!--End Pen Canvas -->
+  <!--end Pen Canvas -->
 
 
 
@@ -114,7 +114,28 @@
   <script src="penScript.js"></script>
   <script src="data.js"></script>
 
+  <script>
+   // let toggle = document.getElementById("toggleSwitch");
+    let menu = document.getElementById("floatingMenu");
+    let savedState = localStorage.getItem('floatingMenuVisible');
+    // 🟢 Load saved state on page load
+    window.onload = function () {
 
+      //const menu = document.getElementById('floatingMenu');
+
+      if (savedState === 'show') {
+        menu.style.display = 'block';
+        menu.classList.add('active');
+      
+      } else {
+        menu.style.display = 'none';
+        menu.classList.remove('active');
+      
+      }
+    };
+
+
+  </script>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -292,35 +313,46 @@
             div.classList.add('selected');
           }
 
+          /* div.addEventListener('click', () => {
+            selectedAnswers[currentQuestion] = optionLetter;
+            loadQuestion();
+          });*/
 
+let pressTimer;
 
+// Add both mouse and touch events
+div.addEventListener('mousedown', startPress);
+div.addEventListener('touchstart', startPress, { passive: true });
 
-          let pressTimer;
+div.addEventListener('mouseup', cancelPress);
+div.addEventListener('mouseleave', cancelPress);
+div.addEventListener('touchend', cancelPress);
+div.addEventListener('touchcancel', cancelPress);
 
-          div.addEventListener('mousedown', () => {
-            pressTimer = setTimeout(() => {
-              // Long press: deselect the option if it's already selected
-              if (selectedAnswers[currentQuestion] === optionLetter) {
-                delete selectedAnswers[currentQuestion];
-                loadQuestion();
-              }
-            }, 700); // 700ms for long press
-          });
+div.addEventListener('click', () => {
+  if (selectedAnswers[currentQuestion] !== optionLetter) {
+    selectedAnswers[currentQuestion] = optionLetter;
+    loadQuestion();
+  }
+});
 
-          div.addEventListener('mouseup', () => {
-            clearTimeout(pressTimer);
-          });
+function startPress(e) {
+  // Prevent scrolling on touch devices
+  if (e.type === "touchstart") {
+    e.preventDefault?.();
+  }
 
-          div.addEventListener('mouseleave', () => {
-            clearTimeout(pressTimer);
-          });
+  pressTimer = setTimeout(() => {
+    if (selectedAnswers[currentQuestion] === optionLetter) {
+      delete selectedAnswers[currentQuestion];
+      loadQuestion();
+    }
+  }, 700); // long press = 700ms
+}
 
-          div.addEventListener('click', () => {
-            if (selectedAnswers[currentQuestion] !== optionLetter) {
-              selectedAnswers[currentQuestion] = optionLetter;
-              loadQuestion();
-            }
-          });
+function cancelPress() {
+  clearTimeout(pressTimer);
+}
 
 
 
@@ -414,7 +446,7 @@
     loadQuestion();
     // startTimer();
   </script>
-  <script>
+    <script>
     const btn = document.getElementById('fullscreenBtn');
 
     btn.addEventListener('click', async () => {
