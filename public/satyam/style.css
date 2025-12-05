@@ -84,6 +84,7 @@
     .timer {
       font-size: 20px;
       margin-right: 10px;
+      display: none;
     }
 
 
@@ -308,13 +309,13 @@
     .onResultCard {
       display: none;
       position: fixed;
-      bottom: 20px;
+      bottom: 2px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      max-width: 600px;
+      max-width: 500px;
       width: 90%;
       z-index: 999;
     }
