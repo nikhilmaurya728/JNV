@@ -10,8 +10,7 @@
       margin: auto;
       font-family: Arial, sans-serif;
       scroll-behavior: smooth;
-      background-color: #b6b6b6;
-       padding-bottom: 90px;
+      background-color: #ddffef;
     }
 
 
@@ -227,7 +226,7 @@
       width: 100%;
       background: white;
       padding: 20px;
-      margin: 100px 0 30px;
+      margin: 100px 0 300px;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
@@ -297,7 +296,7 @@
       display: none;
       background: #fff;
       padding: 20px;
-      margin: 100px 0 30px;
+      margin: 100px 0 300px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
@@ -310,8 +309,7 @@
     .onResultCard {
       display: none;
       position: fixed;
-      bottom: 0;
-  padding-bottom: env(safe-area-inset-bottom);
+      bottom: 2px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
