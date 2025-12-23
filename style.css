@@ -11,6 +11,7 @@
       font-family: Arial, sans-serif;
       scroll-behavior: smooth;
       background-color: #b6b6b6;
+       padding-bottom: 90px;
     }
 
 
@@ -309,7 +310,8 @@
     .onResultCard {
       display: none;
       position: fixed;
-       padding-bottom: env(safe-area-inset-bottom);
+      bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom);
       left: 50%;
       transform: translateX(-50%);
       display: flex;
