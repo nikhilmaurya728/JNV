@@ -146,37 +146,9 @@
 
 
 
-  <!--Start Pen Canvas -->
-  <canvas id="overlayCanvas"></canvas>
-  <!-- Floating Button Menu -->
-  <div class="floating-menu" id="floatingMenu">
 
-    <button id="actCan" class="tool-btn" onclick="activateCanvas()">🖋️</button>
-    <button style="background: #00e6cf;" id="deActCan" class="tool-btn" onclick="deactivateCanvas()">🖋️</button>
-    <button class="tool-btn" onclick="clearCanvas()">❌</button>
-    <button class="tool-btn tool-btn-changeColor" onclick="toggleEraser()">🧹</button>
 
-    <button style="color: #00f000;" class="tool-btn tool-btn-changeColor" onclick="changeColor('#00f000')">✎</button>
-
-    <button style="color: blue;" class="tool-btn tool-btn-changeColor" onclick="changeColor('#0000ff')">✎</button>
-
-    <button style="color: red;" class="tool-btn tool-btn-changeColor" onclick="changeColor('#ff0000')">✎</button>
-
-    <button class="tool-btn tool-btn-changeColor" onclick="openColorPicker()">
-      <input type="color" id="colorPicker" onclick="changeColor(this.value)" onchange="changeColor(this.value)">
-    </button>
-
-    <button class="tool-btn" style="font-size:medium;">
-      <input id="penSizeSlider" type="range" min="1" max="20" value="8" onchange="changePenSize(this.value)" />
-      <span id="penSizeValue">5</span>
-    </button>
-
-    <button id="mainToggleBtn" class="tool-btn show" onclick="toggleToolMenu()">➕ Tools</button>
-
-  </div>
-  <!--end Pen Canvas -->
-
-  <script src="penScript.js"></script>
+ 
   <script src="examName.js"></script>
   <script>
     const sidebar = document.getElementById('sidebar');
@@ -198,44 +170,8 @@
 
 
   </script>
+ 
   <script>
-    let toggle = document.getElementById("toggleSwitch");
-    let menu = document.getElementById("floatingMenu");
-    let savedState = localStorage.getItem('floatingMenuVisible');
-    // 🟢 Load saved state on page load
-    window.onload = function () {
-
-      //const menu = document.getElementById('floatingMenu');
-
-      if (savedState === 'show') {
-        menu.style.display = 'block';
-        menu.classList.add('active');
-        toggle.classList.add('active');
-      } else {
-        menu.style.display = 'none';
-        menu.classList.remove('active');
-        toggle.classList.remove('active');
-      }
-    };
-
-
-    function toggleMenu() {
-      toggle.classList.toggle("active");
-      menu.classList.toggle("active");
-
-      // Toggle display
-      if (menu.style.display === 'none' || menu.style.display === '') {
-        menu.style.display = 'block';
-        localStorage.setItem('floatingMenuVisible', 'show');
-      } else {
-        menu.style.display = 'none';
-        localStorage.setItem('floatingMenuVisible', 'hide');
-      }
-    }
-  </script>
-  <script>
-
-
 
     const container = document.getElementById('cardContainer');
     const searchInput = document.getElementById('searchInput');
